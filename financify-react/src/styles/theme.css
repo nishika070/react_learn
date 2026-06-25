@@ -1,0 +1,59 @@
+@import "tailwindcss";
+:root{
+    /* =============================
+    =======COLORS================
+    ============================= */
+    /* BRANDING */
+    --color-primary:#5279B0;
+    --color-primary-hover:#3F659B;
+    /* background*/
+    --color-backgroud:#F4F7FC;
+    --color-card:#ffffff;
+    --color-input:#fafbfd;
+    /* text; */
+    --color-superheading:#5279B0;
+    --color-heading:#333333;
+    --color-text:#525252;
+    --color-subtext:#888888;
+    /* status */
+    --color-success:#1d9e75;
+    --color-danger:#e23b4a;
+    /* borders  */
+    --color-border:#dbe2ea;
+    --color-card-border:#ebe6e6;
+    /* button  */
+    --color-border:#dbe2ea;
+    --color-card-border:#ebe6e6;
+    /* button  */
+    --color-button-text:#ffffff;
+     /* =============================
+    =======Spacing================
+    ============================= */
+    --page-padding:40px;
+    --page-card:24px;
+    --section-gap:24px;
+    --input-padding:12px;
+
+     /* =============================
+    =======Radius================
+    ============================= */
+    --radius-sm:10px;
+    --radius-md:14px;
+    --radius-lg:16px;
+     /* =============================
+    =======Shadows================
+    ============================= */
+    --shadow-car:0px 4px 12px rgba(0,0,0,0.08);
+    --shadow-small:
+        0px 2px 5px rgba(0,0,0,0.05);
+
+    /* ===================================
+                FONTS
+    =================================== */
+
+    --font-heading:"Poppins",sans-serif;
+    --font-body:"Inter",sans-serif;
+
+
+
+}

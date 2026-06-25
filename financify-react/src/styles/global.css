@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+/* ======================================
+              RESET
+====================================== */
+
+*{
+    margin: 0;
+    box-sizing: border-box;
+}
+
+/* ======================================
+            GLOBAL BODY
+====================================== */
+
+body{
+    font-family: var(--font-body);
+    background: var(--color-background);
+    color: var(--color-text);
+}
+
+/* ======================================
+        DEFAULT IMAGE BEHAVIOUR
+====================================== */
+
+img{
+    display: block;
+    max-width: 100%;
+}
+
+/* ======================================
+        DEFAULT LINKS
+====================================== */
+
+a{
+    text-decoration: none;
+    color: inherit;
+}
+
+/* ======================================
+      BUTTONS
+====================================== */
+
+button{
+    font-family: inherit;
+    cursor: pointer;
+}
