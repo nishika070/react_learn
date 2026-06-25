@@ -2,8 +2,12 @@ import Navbar from "../components/Navbar"
 function Income(){
 
     return (
-        <h2>Income page</h2>
-    )
+        <>
+            <IncomeCards />
+
+            <AddIncome />
+
+            <IncomeList />   </> )
 
 }
 export default Income
