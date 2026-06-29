@@ -3,11 +3,7 @@ function Income(){
 
     return (
         <>
-            <IncomeCards />
-
-            <AddIncome />
-
-            <IncomeList />   </> )
-
+            <h1>income</h1> 
+        </>)
 }
 export default Income
