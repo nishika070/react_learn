@@ -3,21 +3,43 @@ import {db} from "../firebase/firebase";
 import { useState } from "react";
 import {addDoc , collection} from "firebase/firestore"
 // from library
-function ExpenseForm(){
+function ExpenseForm({loadList}){
     const [description,setDescription]=useState("");
     const [amount,setAmount]=useState("");
     const [date,setDate]=useState("");
     const [category,setCategory]=useState("");
-    const handleSubmit=(e)=>{
+    const handleSubmit=async(e)=>{
         e.preventDefault();
+        const expense= {
+            description,
+            amount:Number(amount),
+            date,
+            category
+        };
+        
+        console.log("till the expense object is made")
+        //object ko database pr dena
+        //add docs to submiT/SAVE data on the database {firebase in this particular case }
 
-        console.log(description);
-        console.log(amount);
-        console.log(date);
-        console.log(category);
-    }
+        await addDoc(
+            collection(db,"expenses"),expense
+        )
+       console.log("the object is addedto the expenses in the database");
+       
+        setDescription("");
+        setAmount("");
+        setDate("");
+        setCategory("");
+        console.log("now loadlist will be await")
+        await loadlist();
+        console.log("loadlist updated ")
+         alert("saved!")
+    };
     return(
+        
         <form 
+            onSubmit={handleSubmit}
+
             className="
             bg-[var(--color-card)]
             rounded-[var(--radius-md)] 
@@ -138,12 +160,15 @@ function ExpenseForm(){
                 </select>
             </div>
             <div className="mb-5">
+                
                 <button id="submitBtn"
+                type="submit"
                 className="
                      w-full
                      bg-[var(--color-primary)]
                      text-white
                      py-3
+                     mt-3
                      rounded-md
                      "
                     >
