@@ -1,16 +1,6 @@
+import { useState } from "react"
 
 function RecordList({expenses}){
-    const loadlist=async()=>{
-        const snapshot=await getDocs(collection(db,"expenses"))
-        const expensesArray=snapshot.docs.map(doc=>({
-            id : doc.id,
-            ...doc.data()
-            //this means aur jo bhi original data h usse isme expenses object me sare copy krdo
-            //({  }) it is like () this bcz {}yeh body smajata h funcyion ki if u want ({}) this returns object
-        }))
-        console.log(expensesArray)
-        setExpenses(expensesArray);
-    }
     
     return(
         <>
@@ -19,7 +9,7 @@ function RecordList({expenses}){
             font-semibold 
             mb-6
             pb-4
-            text-[var(--color-superheading)]
+            text-(--color-superheading)]
         "   
         >Expense Record</h2>
         <ul 
@@ -32,7 +22,7 @@ function RecordList({expenses}){
                         m-4
                         px-3
                         py-2
-                        mb-{10px} "
+                        mb-2.5 "
                     key={expense.id}>
                         <p>{expense.description}</p>
                         <p>₹ {expense.amount}</p>

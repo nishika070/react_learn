@@ -11,6 +11,7 @@ import { collection, getDocs } from "firebase/firestore";
 function Expense() {
 
     const [expenses, setExpenses] = useState([]);
+    const [search,setSearch] = useState("");
 
     const loadList = async () => {
         const snapshot = await getDocs(collection(db, "expenses"));
@@ -30,13 +31,15 @@ function Expense() {
     // ======/card====================
     // ----------------------------
     const totalExpense = expenses.reduce((total,expense)=>{
+        console.log(total);
         return total + expense.amount;
     },0);
     const totalTransactions = expenses.length;
     const totalCategories = new Set(
     expenses.map(expense => expense.category)
     ).size;
-    //------------------------------
+    const filteredExpenses = expenses.filter((expense) => expense.description.toLowerCase().includes(search.toLowerCase()));
+       //------------------------------
     //------main return ------------
     //------------------------------
     return (
@@ -85,10 +88,12 @@ function Expense() {
                 </div>
 
                 <div className="w-1/2">
-                    <SearchBar />
-
+                    <SearchBar
+                        search={search}
+                        setSearch={setSearch} 
+/>
                     <RecordList
-                        expenses={expenses}
+                        expenses={filteredExpenses}
                     />
                 </div>
 
