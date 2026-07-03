@@ -4,7 +4,7 @@ import ExpenseForm from "../components/ExpenseForm";
 import SearchBar from "../components/SearchBar";
 import RecordList from "../components/RecordList";
 import StatCard from "../components/StatCard";
-
+import TransactionList from "../components/TransactionList";
 import { db } from "../firebase/firebase";
 import { collection, getDocs } from "firebase/firestore";
 
