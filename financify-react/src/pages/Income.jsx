@@ -43,7 +43,7 @@ function Income(){
     return (
         <>
         {/* bnaoooo yha pr cards call kro  */}
-        <div>
+        <div className="max-w-7xl mx-auto px-3 py-4">
             <div>
                 {/* title */}
                 <h2>Income Page</h2>

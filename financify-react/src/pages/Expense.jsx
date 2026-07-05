@@ -44,7 +44,9 @@ function Expense() {
     //------------------------------
     return (
         <>
-        <div className="max-w-7xl mx-auto px-8 py-4">
+        
+
+        <div className="max-w-7xl mx-auto px-3 py-4 ">
             {/*-------------HEADING -------------*/}
             <div className="mb-4">
             <h1

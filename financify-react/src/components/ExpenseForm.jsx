@@ -31,7 +31,7 @@ function ExpenseForm({loadList}){
         setDate("");
         setCategory("");
         console.log("now loadlist will be await")
-        await loadlist();
+        await loadList();
         console.log("loadlist updated ")
          alert("saved!")
     };

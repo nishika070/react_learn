@@ -2,7 +2,8 @@ import logo from "../assets/logo.svg"
 import { Link } from "react-router-dom";
 function Navbar(){
     return (
-        <nav className="flex justify-between !px-8 !py-4 items-center text-[var(--color-heading)]">
+        <nav className="max-w-7xl mx-auto px-3 py-8  flex justify-between items-center text-[var(--color-heading)]">
+            
             <div className="flex gap-3">
                 {/*left*/}
                 

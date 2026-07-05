@@ -7,7 +7,7 @@
     --color-primary:#5279B0;
     --color-primary-hover:#3F659B;
     /* background*/
-    --color-backgroud:#114caa;
+    --color-background:#F4F7FC;
     --color-card:#ffffff;
     --color-input:#fafbfd;
     /* text; */
@@ -43,7 +43,7 @@
      /* =============================
     =======Shadows================
     ============================= */
-    --shadow-car:0px 4px 12px rgba(0,0,0,0.08);
+    --shadow-card:0px 4px 12px rgba(0,0,0,0.08);
     --shadow-small:
         0px 2px 5px rgba(0,0,0,0.05);
 

@@ -61,7 +61,7 @@ function Dashboard(){
         :(((totalIncome-totalExpense)/totalIncome)*100).toFixed(2);
     
     return(
-        <div>
+        <div className="max-w-7xl mx-auto px-3 py-4">
             <div>
                 {/* heading */}
                 <h2>Dashboards</h2>

@@ -24,10 +24,12 @@ function RecordList({expenses}){
                         py-2
                         mb-2.5 "
                     key={expense.id}>
-                        <p>{expense.description}</p>
-                        <p>₹ {expense.amount}</p>
-                        <p>{expense.category}</p>
-                        <p>{expense.date}</p>
+                        <div className="flex justify-around">
+                        <span><p>{expense.description}</p></span>
+                        <span><p>₹ {expense.amount}</p></span>
+                        </div>
+                        <div className="flex justify-around"><p>{expense.category}</p>
+                        <p>{expense.date}</p></div>
                 </li>
             ))
         }
