@@ -41,28 +41,47 @@ function ExpenseForm({loadList}){
             onSubmit={handleSubmit}
 
             className="
+
+            p-6
+            mt-5
+            space-y-5
+
             bg-[var(--color-card)]
             rounded-[var(--radius-md)] 
-            shadow-[var(--shadow-card)]
-            p-6
+
+            shadow-md
+
+            border-l-4
+            border-l-transparent
+            
+            hover:border-l-[var(--color-superheading)]
+
+
+
+            transition-all
+            duration-300
+            
             " >
             <h2 className="
-                text-2xl 
+                text-xl 
                 font-semibold 
-                mb-6
                 text-[var(--color-superheading)]
+                border-b-2
+                border-[var(--color-superheading)]
+                border-b
+                pb-2
+                mb-4
+
                
             ">
                 +Add New Expense
             </h2>
-            <div className="mb-5">
+            <div >
                 <label htmlFor="Description"
                     className="
                         block
                         mb-2
                         font-medium
-                        p-2
-                        rounded-[var(--radius-sm)]
                         "
                 >
                     Description
@@ -74,20 +93,25 @@ function ExpenseForm({loadList}){
                     value={description}
                     onChange={(e)=> setDescription(e.target.value)}
                     className="
-                        w-1/2
+                        w-full
                         border
                         rounded-md
                         px-3
-                        py-2"/>
+                        py-2
+
+                        focus:outline-none
+                        focus:ring-2
+                        focus:ring-[var(--color-superheading)]
+                        focus:border-transparent
+                        "
+                        />
             </div>
-            <div className="mb-5">
+            <div>
                 <label htmlFor="Amount"
                 className="
                         block
                         mb-2
                         font-medium
-                        p-2
-                        rounded-[var(--radius-sm)]
                         ">Amount</label>
                 <input
                     id="Amount"
@@ -96,58 +120,71 @@ function ExpenseForm({loadList}){
                     value={amount}
                     onChange={(e)=>setAmount(e.target.value)}
                     className="
-                        w-1/2
+                        w-full
                         border
                         rounded-md
                         px-3
-                        py-2"
+                        py-2
 
-                >
+                        focus:outline-none
+                        focus:ring-2
+                        focus:ring-[var(--color-superheading)]
+                        focus:border-transparent
+                        "
+                        >
                 </input>
             </div>
-            <div className="mb-5">
+            <div >
                 <label htmlFor="Date"
                 className="
                         block
                         mb-2
                         font-medium
-                        p-2
-                        rounded-[var(--radius-sm)]
                         ">Date</label>
                 <input 
                     type="date" 
                     id="Date"
                     value={date}
                     onChange={(e)=>setDate(e.target.value)}
-                    className="
-                        w-1/2
+                                        className="
+                        w-full
                         border
                         rounded-md
                         px-3
-                        py-2"
+                        py-2
 
+                        focus:outline-none
+                        focus:ring-2
+                        focus:ring-[var(--color-superheading)]
+                        focus:border-transparent
+                        "
+                        
 
                 />
             </div>
-            <div className="mb-5">
+            <div >
                 <label htmlFor="Category"
                 className="
                         block
                         mb-2
                         font-medium
-                        p-2
-                        rounded-[var(--radius-sm)]
                         ">Category</label>
 
                 <select 
                         value={category}
                         onChange={(e)=>setCategory(e.target.value)}
-                        className="
-                        w-1/2
+                                            className="
+                        w-full
                         border
                         rounded-md
                         px-3
-                        py-2"
+                        py-2
+
+                        focus:outline-none
+                        focus:ring-2
+                        focus:ring-[var(--color-superheading)]
+                        focus:border-transparent
+                        "
                         >
                     <option value="">Select Category</option>
                     <option value="Food">Food</option>
@@ -159,7 +196,7 @@ function ExpenseForm({loadList}){
                     
                 </select>
             </div>
-            <div className="mb-5">
+            <div >
                 
                 <button id="submitBtn"
                 type="submit"
@@ -170,6 +207,9 @@ function ExpenseForm({loadList}){
                      py-3
                      mt-3
                      rounded-md
+                     hover:bg-[var(--color-primary-hover)]
+                     transition-colors
+                     duration-300
                      "
                     >
                         AddExpense

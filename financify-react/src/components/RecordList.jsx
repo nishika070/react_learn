@@ -4,14 +4,17 @@ function RecordList({expenses}){
     
     return(
         <>
-        <h2 className="
-            text-2xl 
-            font-semibold 
-            mb-6
-            pb-4
-            text-(--color-superheading)]
-        "   
-        >Expense Record</h2>
+        <div className="
+                        bg-white
+                        m-5
+                        border-2
+                        border-l-4
+                        border-l-[var(--color-superheading)]
+                        rounded-md
+                        pl-2
+                        border-transparent
+                        shadow-md">
+        
         <ul 
             className="flex flex-col gap-0.5">{
             expenses.map(expense=>(
@@ -24,7 +27,7 @@ function RecordList({expenses}){
                         py-2
                         mb-2.5 "
                     key={expense.id}>
-                        <div className="flex justify-around">
+                        <div className="flex justify-between">
                         <span><p>{expense.description}</p></span>
                         <span><p>₹ {expense.amount}</p></span>
                         </div>
@@ -34,6 +37,7 @@ function RecordList({expenses}){
             ))
         }
         </ul>
+        </div>
         </>
     )
 }

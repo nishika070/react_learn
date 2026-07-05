@@ -1,17 +1,35 @@
 function Searchbar({search,setSearch}){
     return (
         <>
-        <div className="
-        py-3 m-4 center justify-center ml-1.5 border rounded-md" >
+        
             <input 
                 type="text" 
                 placeholder="search"
                 value={search}
                 onChange={(e)=>setSearch(e.target.value)}
+                className="
+                        max-width: 512px;
+                        mt-9
+                        p-2
+                        mb-3
+                        border-2
+                        rounded-md
+                        shadow-md
+
+                        hover:shadow-lg
+                        hober:border-[var(--color-superheading)]
+                        hover:-translate-y-1
+                        transition-all
+                        duration-300
+                                               
+                        placeholder:grey-50 font-semibold
+
+                        "
+
                 
                 >    
             </input>
-        </div>
+       
         </>
     )
 }

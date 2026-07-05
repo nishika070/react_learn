@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-
 import ExpenseForm from "../components/ExpenseForm";
 import SearchBar from "../components/SearchBar";
 import RecordList from "../components/RecordList";
@@ -67,13 +66,13 @@ function Expense() {
             {/*-------------CARDS -------------*/}
 
 
-            <div className="grid grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-3 gap-6 mb-8 px-5">
             <StatCard 
                 title="Total Expense"
-                value={`${totalExpense}`}
+                value={`₹${totalExpense.toLocaleString("en-IN")}`}
             />
             <StatCard 
-                title="Transactions"
+                title="Total Transactions"
                 value={`${totalTransactions}`}
             />
             <StatCard 
@@ -85,15 +84,27 @@ function Expense() {
 
             <div className="flex gap-6 mt-8">
 
-                <div className="w-1/2">
+                <div className="w-2/5">
                     <ExpenseForm loadList={loadList}/>
                 </div>
 
-                <div className="w-1/2">
+                <div className="w-3/5">
+                    <div className="flex
+                                   justify-between
+                                ">
+                    <h2 className="
+                        text-2xl 
+                        font-semibold 
+                        mt-3
+                        mb-1
+                        text-[var(--color-superheading)]
+                    "   
+                    >Expense Record</h2>
                     <SearchBar
                         search={search}
                         setSearch={setSearch} 
-/>
+                    / >
+                    </div>    
                     <RecordList
                         expenses={filteredExpenses}
                     />
