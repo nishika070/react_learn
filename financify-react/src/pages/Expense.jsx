@@ -95,8 +95,11 @@ function Expense() {
                     <h2 className="
                         text-2xl 
                         font-semibold 
-                        mt-3
+                        m-4
                         mb-1
+                        pt-7
+                        ml-5
+                        text-center
                         text-[var(--color-superheading)]
                     "   
                     >Expense Record</h2>
