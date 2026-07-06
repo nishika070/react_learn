@@ -43,7 +43,7 @@ function ExpenseForm({loadList}){
             className="
 
             p-6
-            mt-5
+            mt-7
             space-y-5
 
             bg-[var(--color-card)]

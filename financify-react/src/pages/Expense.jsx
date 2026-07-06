@@ -5,12 +5,14 @@ import RecordList from "../components/RecordList";
 import StatCard from "../components/StatCard";
 import TransactionList from "../components/TransactionList";
 import { db } from "../firebase/firebase";
+import Pagination from "../components/Pagination";
 import { collection, getDocs } from "firebase/firestore";
 
 function Expense() {
 
     const [expenses, setExpenses] = useState([]);
     const [search,setSearch] = useState("");
+
 
     const loadList = async () => {
         const snapshot = await getDocs(collection(db, "expenses"));
@@ -38,9 +40,19 @@ function Expense() {
     expenses.map(expense => expense.category)
     ).size;
     const filteredExpenses = expenses.filter((expense) => expense.description.toLowerCase().includes(search.toLowerCase()));
-       //------------------------------
+    //------------------------------
+    //------Pagination logic  ------
+    //------------------------------
+    const [currentPage,setCurrentPage]=useState(1)
+    const recordsPerPage=5;
+    const startIndex=(currentPage-1)*recordsPerPage
+    const endIndex=(startIndex +recordsPerPage);
+    let visibleExpenses=filteredExpenses.slice(startIndex,endIndex);
+    const totalPages= Math.ceil(filteredExpenses.length/recordsPerPage);
+    //------------------------------
     //------main return ------------
     //------------------------------
+    
     return (
         <>
         
@@ -70,6 +82,8 @@ function Expense() {
             <StatCard 
                 title="Total Expense"
                 value={`₹${totalExpense.toLocaleString("en-IN")}`}
+                                valueColor="text-red-600"
+
             />
             <StatCard 
                 title="Total Transactions"
@@ -82,18 +96,18 @@ function Expense() {
             </div>
             {/*-------------TWO COL LAYOUT  -------------*/}
 
-            <div className="flex gap-6 mt-8">
+            <div className="flex gap-6 ml-5 mt-8">
 
-                <div className="w-2/5">
+                <div className="w-[40%]">
                     <ExpenseForm loadList={loadList}/>
                 </div>
 
-                <div className="w-3/5">
+                <div className="flex-1">
                     <div className="flex
                                    justify-between
                                 ">
                     <h2 className="
-                        text-2xl 
+                        text-xl 
                         font-semibold 
                         m-4
                         mb-1
@@ -108,12 +122,22 @@ function Expense() {
                         setSearch={setSearch} 
                     / >
                     </div>    
+                    <div>
                     <RecordList
-                        expenses={filteredExpenses}
+                        expenses={visibleExpenses}
                     />
-                </div>
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        setCurrentPage={setCurrentPage}
+
+                        />
+                    </div>
+               
+            </div>
 
             </div>
+            
         </div>
         </>
     );

@@ -1,4 +1,4 @@
-function StatCard({ title, value }) {
+function StatCard({ title, value , valueColor="text-[var(--color-heading)]"}) {
     return (
         <div className="bg-white
                       rounded-xl 
@@ -31,14 +31,11 @@ function StatCard({ title, value }) {
                 {title}
             </h3>
 
-            <p className="text-3xl 
-                          font-bold
-                          mt-2 
-                          text-[var(--color-superheading)] 
-                          text-center 
-            ">
-                {value}
-            </p>
+            <p
+                  className={`text-3xl font-bold mt-2 text-center ${valueColor}`}
+                >
+                  {value}
+                </p>
         </div>
     );
 }

@@ -2,12 +2,12 @@ import { useState } from "react"
 
 function RecordList({expenses}){
     const categoryColors = {
-    Travel: "bg-blue-100 text-blue-700",
-    Food: "bg-orange-100 text-orange-700",
-    Bills: "bg-red-100 text-red-700",
-    Entertainment: "bg-purple-100 text-purple-700",
-    Health: "bg-green-100 text-green-700",
-    Shopping: "bg-pink-100 text-pink-700",
+            Travel: "bg-blue-100 text-blue-700",
+            Food: "bg-orange-100 text-orange-700",
+            Bills: "bg-red-100 text-red-700",
+            Entertainment: "bg-purple-100 text-purple-700",
+            Health: "bg-green-100 text-green-700",
+            Shopping: "bg-pink-100 text-pink-700",
         };
     
     return(
@@ -32,7 +32,7 @@ function RecordList({expenses}){
                         border-gray-400
                         rounded-md
                         px-3
-                        py-2
+                        py-[6px]
                         mb-2.5 
                         shadow-md
                         hover:-translate-y-1 
@@ -54,7 +54,7 @@ function RecordList({expenses}){
                         <p className="
                                     font-semibold
                                     text-xl
-                                    text-[var(--color-superheading)]
+                                    text-red-800
                                     
 
                                         ">₹ {expense.amount.toLocaleString("en-IN")}</p>
@@ -62,7 +62,6 @@ function RecordList({expenses}){
                         <div className="flex gap-3 items-center mt-2">
                                 <span className={`
                                     px-2
-                                    py-1
                                     rounded-md
                                     font-semibold
                                     ${categoryColors[expense.category]}
