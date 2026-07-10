@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
+import { db } from "../firebase/firebase";
+import { collection, getDocs } from "firebase/firestore";
+import Navbar from "../components/Navbar";
+import StatCard from "../components/StatCard";
 import ExpenseForm from "../components/ExpenseForm";
 import SearchBar from "../components/SearchBar";
 import RecordList from "../components/RecordList";
-import StatCard from "../components/StatCard";
-import TransactionList from "../components/TransactionList";
-import { db } from "../firebase/firebase";
 import Pagination from "../components/Pagination";
-import { collection, getDocs } from "firebase/firestore";
+import TransactionList from "../components/TransactionList";
 
 function Expense() {
 
@@ -15,15 +16,19 @@ function Expense() {
 
 
     const loadList = async () => {
+        // function loadlist to load the list
         const snapshot = await getDocs(collection(db, "expenses"));
-
+        // get docs basically return the object
+        // now with .docs we get details saved like id:data
+        // for all docs we save them in expense array 
         const expenseArray = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
         }));
-
+        // now setExpenses updates the Expenses with the expenseArray
         setExpenses(expenseArray);
     };
+    // helps in load here it loads load list but can work on submit as well
 
     useEffect(() => {
         loadList();
@@ -43,12 +48,16 @@ function Expense() {
     //------------------------------
     //------Pagination logic  ------
     //------------------------------
+    const sortedExpense=[...filteredExpenses].sort((a,b)=>{
+        new Date(b.date)-new Date(a.date);
+    })
     const [currentPage,setCurrentPage]=useState(1)
     const recordsPerPage=5;
     const startIndex=(currentPage-1)*recordsPerPage
     const endIndex=(startIndex +recordsPerPage);
-    let visibleExpenses=filteredExpenses.slice(startIndex,endIndex);
-    const totalPages= Math.ceil(filteredExpenses.length/recordsPerPage);
+    let visibleExpenses=sortedExpense.slice(startIndex,endIndex);
+    const totalPages= Math.ceil(sortedExpense.length/recordsPerPage);
+
     //------------------------------
     //------main return ------------
     //------------------------------

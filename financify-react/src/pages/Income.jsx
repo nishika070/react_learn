@@ -1,14 +1,15 @@
-import Navbar from "../components/Navbar"
-import IncomeForm from "../components/IncomeForm"
-import IncomeList from "../components/IncomeList"
-import StatCard from "../components/StatCard"
-import Searchbar from "../components/SearchBar"
+import {db} from "../firebase/firebase"
 import { collection,getDocs } from "firebase/firestore"
 import { useState } from "react"
 import { Await } from "react-router-dom"
 import { useEffect } from "react"
-import {db} from "../firebase/firebase"
+import Navbar from "../components/Navbar"
+import StatCard from "../components/StatCard"
+import IncomeForm from "../components/IncomeForm"
+import Searchbar from "../components/SearchBar"
+import IncomeList from "../components/IncomeList"
 import Expense from "./Expense"
+import Pagination from "../components/Pagination"
 function Income(){
     //load the data 
     const [incomes,setIncome]=useState([]);
@@ -39,21 +40,55 @@ function Income(){
 
     ).size;
     const filteredIncome=incomes.filter((income)=>income.description.toLowerCase().includes(search.toLowerCase()));
+//================================
+    // pagination logic
+// ===============================
+    // so what is the pagination logic
+    const sortedIncome=[...filteredIncome].sort((a,b)=>{
+        new Date(b.date)-new Date(a.date);
+    })
+    const [currentPage,setCurrentPage]=useState(1)
+    const recordsPerPage=5
+    const startIndex=(currentPage-1)*recordsPerPage 
+    const endIndex=(startIndex + recordsPerPage);
+    let visibleIncome=sortedIncome.slice(startIndex,endIndex);
+    const totalPages=Math.ceil(sortedIncome.length/recordsPerPage);
 
+    // u ave const per page
+    // start end
+    // .slice
+   
     return (
         <>
         {/* bnaoooo yha pr cards call kro  */}
         <div className="max-w-7xl mx-auto px-3 py-4">
-            <div>
+            <div className="mb-4">
                 {/* title */}
-                <h2>Income Page</h2>
-                <p>Manage and monitor your daily incomes.</p>
+                <h1 
+                    className="
+                            font-semibold
+                            text-[20px]
+                            text-var[--color-headin)]
+                            ">
+                    Income Page
+                </h1>
+                <p
+                    className="
+                            mt-2
+                            text-gray-500">
+                    Manage and monitor your daily incomes.
+                </p>
             </div>
-            <div className="grid grid-cols-3 gap-3">
+            {/* ================================== */}
+            {/* ===========Cards=================== */}
+            {/* =================================== */}
+            
+            <div className="grid grid-cols-3 mb-8 px-5 gap-3">
                 {/* stat cards  */}
                 <StatCard
                     title="Total Income"
-                    value={`${totalIncome}`}/>
+                    value={`+ ${totalIncome.toLocaleString("en-IN")}`}
+                            valueColor="text-green-700"/>
                 <StatCard
                     title="Transactions"
                     value={`${totalTransactions}`}/>                
@@ -61,18 +96,44 @@ function Income(){
                     title="Categories"
                     value={`${totalCategories}`}/>
             </div>
-            <div className="flex p-3 gap-2">
-                <div className="w-1/2">
-                    {/* expense form comes here  */}
+            {/*-------------TWO COL LAYOUT  -------------*/}
+
+            <div className="flex gap-6 ml-5 mt-8">
+                <div className="w-[40%]">
+                    {/* income form comes here  */}
                     <IncomeForm loadList={loadList}/>
                 </div>
-                <div className="flex flex-col p-3 g-2 w-1/2">
-                    {/* so list comes here  */}
-                    <Searchbar 
-                        search={search}
-                        setSearch={setSearch} />
-                    <IncomeList incomes ={filteredIncome}/>
+                {/* the income transaction side  */}
+                <div className="w-[60%]">
+                    <div className="flex
+                                    justify-between">
+
+                        {/* heading + search btn  */}
+                        <h2 className="
+                            text-xl
+                            font-semibold
+                            m-4
+                            mb-1
+                            pt-7
+                            ml-5
+                            text-[var(--color-superheading)]">
+                            Income Record
+                        </h2>
+                        <Searchbar
+                            search={search}
+                            setSearch={setSearch}/>
+
+                    </div>
+                   <IncomeList
+                             incomes={visibleIncome}
+/>
+                    <Pagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            setCurrentPage={setCurrentPage}
+                    />
                 </div>
+                
             </div>
         </div>
 
