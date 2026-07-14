@@ -34,7 +34,7 @@ function IncomeExpenseChart({totalIncome,totalExpense}){
     }
     return(
         <>
-        <div classname="w-10 h-2">
+        <div className="w-10 h-2">
         <Bar data={data}/>
         </div>
         </>
