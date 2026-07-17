@@ -1,16 +1,19 @@
 import {db} from "../firebase/firebase";
 // from (db) from file 
-import { useState } from "react";
+import { useState ,useContext} from "react";
 import {addDoc , collection} from "firebase/firestore"
+import { AuthContext } from "../context/AuthContext";
 // from library
 function ExpenseForm({loadList}){
     const [description,setDescription]=useState("");
     const [amount,setAmount]=useState("");
     const [date,setDate]=useState("");
     const [category,setCategory]=useState("");
+    const {user}=useContext(AuthContext);
     const handleSubmit=async(e)=>{
         e.preventDefault();
         const expense= {
+            uid: user.uid,
             description,
             amount:Number(amount),
             date,

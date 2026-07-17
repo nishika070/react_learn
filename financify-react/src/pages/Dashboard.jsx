@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import { useState, useEffect, useContext } from "react";
+import { collection, getDocs , query , where } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 
 import StatCard from "../components/StatCard";
@@ -8,14 +8,24 @@ import TransactionList from "../components/TransactionList";
 import Pagination from "../components/Pagination";
 import IncomeExpenseChart from "../components/IncomeExpenseChart";
 import ExpenseCategoryChart from "../components/ExpenseCategoryChart";
+import { AuthContext } from "../context/AuthContext";
  function Dashboard() {
     const [transactions, setTransactions] = useState([]);
     const [search, setSearch] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [expenses,setExpenses]=useState([]);
+    const {user }=useContext(AuthContext)
     const loadList = async () => {
-        const expenseSnapshot = await getDocs(collection(db, "expenses"));
-        const incomeSnapshot = await getDocs(collection(db, "incomes"));
+        const q = query(
+            collection(db,"expenses"),
+            where("uid","==",user.uid)
+        );
+        const expenseSnapshot=await getDocs(q);
+        const qi= query (
+            collection(db ,"incomes"),
+            where("uid","==",user.uid)
+        )
+        const incomeSnapshot = await getDocs(qi);
 
         const expenseArray = expenseSnapshot.docs.map((doc) => ({
             id: doc.id,
@@ -78,7 +88,7 @@ import ExpenseCategoryChart from "../components/ExpenseCategoryChart";
             .includes(search.toLowerCase())
     );
     const sortedTransaction=[...filteredTransactions].sort((a,b)=>{
-        new Date(b.date)-new Date(a.date);
+        return new Date(b.date)-new Date(a.date);
     })
 
     // ============================

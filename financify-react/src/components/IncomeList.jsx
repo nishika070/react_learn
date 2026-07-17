@@ -1,4 +1,4 @@
-function IncomeList({ incomes }) {
+function IncomeList({ incomes ,setSelectedIncome }) {
     const categoryColors = {
         Travel: "bg-blue-100 text-blue-700",
         Food: "bg-orange-100 text-orange-700",
@@ -7,10 +7,12 @@ function IncomeList({ incomes }) {
         Health: "bg-green-100 text-green-700",
         Shopping: "bg-pink-100 text-pink-700",
     };
+    
 
     return (
         <>
             <div
+
                 className="
                     bg-white
                     ml-5
@@ -23,9 +25,10 @@ function IncomeList({ incomes }) {
                     shadow-md
                 "
             >
-                <ul className="flex flex-col gap-4">
+                <ul className="flex flex-col gap-4 ">
                     {incomes.map((income) => (
                         <li
+                            onClick={()=>setSelectedIncome(income)}
                             key={income.id}
                             className="
                                 border
@@ -37,6 +40,7 @@ function IncomeList({ incomes }) {
                                 hover:-translate-y-1
                                 hover:border-[var(--color-superheading)]
                                 hover:shadow-lg
+                                cursor-pointer
                                 hover:bg-[var(--color-background)]
                                 transition-all
                                 duration-300

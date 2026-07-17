@@ -1,14 +1,17 @@
-import { useState } from "react";
+import { useState ,useContext } from "react";
 import {db} from "../firebase/firebase"
 import { collection,addDoc } from "firebase/firestore";
+import { AuthContext } from "../context/AuthContext";
 function IncomeForm({loadList}){
     const [description,setDescription]=useState("");
     const [amount,setAmount]=useState("");
     const [date,setDate]=useState("");
     const [category,setCategory]=useState("");
+    const {user}=useContext(AuthContext);
     const handleSubmit=async(e)=>{
         e.preventDefault();
         const income={
+            uid: user.uid,
             description,
             amount:Number(amount),
             date,

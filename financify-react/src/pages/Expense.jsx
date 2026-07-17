@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { db } from "../firebase/firebase";
-import { collection, getDocs } from "firebase/firestore";
 import Navbar from "../components/Navbar";
 import StatCard from "../components/StatCard";
 import ExpenseForm from "../components/ExpenseForm";
@@ -8,8 +7,16 @@ import SearchBar from "../components/SearchBar";
 import RecordList from "../components/RecordList";
 import Pagination from "../components/Pagination";
 import TransactionList from "../components/TransactionList";
-
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+import {
+    collection,
+    getDocs,
+    query,
+    where,
+} from "firebase/firestore";
 function Expense() {
+    const { user } = useContext(AuthContext);
 
     const [expenses, setExpenses] = useState([]);
     const [search,setSearch] = useState("");
@@ -17,7 +24,11 @@ function Expense() {
 
     const loadList = async () => {
         // function loadlist to load the list
-        const snapshot = await getDocs(collection(db, "expenses"));
+        const q = query(
+                    collection(db, "expenses"),
+                    where("uid", "==", user.uid)
+                );
+        const snapshot=await getDocs(q);
         // get docs basically return the object
         // now with .docs we get details saved like id:data
         // for all docs we save them in expense array 
@@ -49,7 +60,7 @@ function Expense() {
     //------Pagination logic  ------
     //------------------------------
     const sortedExpense=[...filteredExpenses].sort((a,b)=>{
-        new Date(b.date)-new Date(a.date);
+        return new Date(b.date)-new Date(a.date);
     })
     const [currentPage,setCurrentPage]=useState(1)
     const recordsPerPage=5;

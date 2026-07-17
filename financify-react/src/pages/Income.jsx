@@ -1,5 +1,4 @@
 import {db} from "../firebase/firebase"
-import { collection,getDocs } from "firebase/firestore"
 import { useState } from "react"
 import { Await } from "react-router-dom"
 import { useEffect } from "react"
@@ -10,18 +9,38 @@ import Searchbar from "../components/SearchBar"
 import IncomeList from "../components/IncomeList"
 import Expense from "./Expense"
 import Pagination from "../components/Pagination"
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+import {
+    collection,
+    getDocs,
+    query,
+    where,
+} from "firebase/firestore";
+import TransactionModal from "../components/TransactionModal"
 function Income(){
+    const { user } = useContext(AuthContext);
     //load the data 
     const [incomes,setIncome]=useState([]);
     const [search,setSearch]=useState("");
-    const loadList=async()=>{
-        const snapshot = await getDocs (collection(db,"incomes"));
-        const expenseArray = snapshot.docs.map(doc=>({
-            id:doc.id,
+    const [selectedIncome,setSelectedIncome]=useState(null);
+    // initally it is null
+
+    
+    const loadList=async()=>{const q = query(
+            collection(db, "incomes"),
+            where("uid", "==", user.uid)
+        );
+
+        const snapshot = await getDocs(q);
+
+        const incomeArray = snapshot.docs.map(doc => ({
+            id: doc.id,
             ...doc.data()
         }));
-        setIncome(expenseArray);
-    }
+
+        setIncome(incomeArray);
+            }
 
     //define usestate
     useEffect(
@@ -45,7 +64,7 @@ function Income(){
 // ===============================
     // so what is the pagination logic
     const sortedIncome=[...filteredIncome].sort((a,b)=>{
-        new Date(b.date)-new Date(a.date);
+        return new Date(b.date)-new Date(a.date);
     })
     const [currentPage,setCurrentPage]=useState(1)
     const recordsPerPage=5
@@ -126,7 +145,8 @@ function Income(){
                     </div>
                    <IncomeList
                              incomes={visibleIncome}
-/>
+                             setSelectedIncome={setSelectedIncome}
+                    />
                     <Pagination
                             currentPage={currentPage}
                             totalPages={totalPages}
@@ -136,7 +156,11 @@ function Income(){
                 
             </div>
         </div>
-
+        {selectedIncome && (
+            <TransactionModal
+                        transaction={selectedIncome}
+                        onClose={()=>setSelectedIncome(null)}
+/>        )}
         </>
         )
 }

@@ -5,6 +5,8 @@ import {
     GoogleAuthProvider,
     signInWithPopup,
     signInAnonymously,
+    signInWithEmailAndPassword,
+
 } from "firebase/auth";
 import { useContext, useEffect, useState } from "react";
 
@@ -35,11 +37,13 @@ function Login() {
     }
 
     async function handleEmailLogin() {
-        console.log(email, password);
-
-        // Firebase Email Login
-        // We'll connect this next.
-    }
+        const result = await signInWithEmailAndPassword(
+            auth,
+            email,
+            password
+        );
+        console.log(user);
+    }   
 
     return (
         <div className="min-h-screen bg-[var(--color-background)] flex items-center justify-center">
@@ -141,6 +145,7 @@ function Login() {
                     </label>
 
                     <button
+
                         className="
                             text-sm
                             text-[var(--color-superheading)]
