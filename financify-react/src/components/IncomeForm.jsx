@@ -1,35 +1,61 @@
-import { useState ,useContext } from "react";
+import { useState ,useContext ,useEffect} from "react";
 import {db} from "../firebase/firebase"
-import { collection,addDoc } from "firebase/firestore";
+import { collection,addDoc,updateDoc,doc } from "firebase/firestore";
 import { AuthContext } from "../context/AuthContext";
-function IncomeForm({loadList}){
+function IncomeForm({loadList ,editingIncome,setEditingIncome}){
     const [description,setDescription]=useState("");
     const [amount,setAmount]=useState("");
     const [date,setDate]=useState("");
     const [category,setCategory]=useState("");
     const {user}=useContext(AuthContext);
-    const handleSubmit=async(e)=>{
-        e.preventDefault();
-        const income={
-            uid: user.uid,
-            description,
-            amount:Number(amount),
-            date,
-            category
-        };
-        console.log(income);
-        
+    const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const income = {
+        uid: user.uid,
+        description,
+        amount: Number(amount),
+        date,
+        category,
+    };
+
+    if (editingIncome) {
+
+        await updateDoc(
+            doc(db, "incomes", editingIncome.id),
+            income
+        );
+        alert("updated!")
+        setEditingIncome(null);
+
+    } else {
+
         await addDoc(
-           collection(db,"incomes"),income
-        )  
-        setDescription("");
-        setAmount("");
-        setDate("");
-        setCategory("");      
-        alert("saved");
-        await loadList();
+            collection(db, "incomes"),
+            
+            income
+        );
+        alert("saved!")
 
     }
+
+    setDescription("");
+    setAmount("");
+    setDate("");
+    setCategory("");
+
+    await loadList();
+};
+    //useeffect when editing income vhanges 
+    useEffect(()=>{
+        if(editingIncome ){
+            setDescription(editingIncome.description);
+            setAmount(editingIncome.amount);
+            setDate(editingIncome.date);
+            setCategory(editingIncome.category);
+
+        }
+    },[editingIncome]);
 
 
     
@@ -70,7 +96,7 @@ function IncomeForm({loadList}){
                                 border-b
                                 pb-2
                                 mb-4
-                                "   >+ Add New Income</h2>
+                                "   >{editingIncome ? "+ Update Income" : "+ Add New Income"}</h2>
             
             {/* description label and input */}
             <div>
@@ -117,6 +143,7 @@ function IncomeForm({loadList}){
                         id="amount"
                         placeholder="ex.1000"
                         onChange={(e)=>setAmount(e.target.value)}
+                        value={amount}
                         className="
                                 w-full
                                 border
@@ -142,6 +169,7 @@ function IncomeForm({loadList}){
                 </label>
                 <input type="date"
                         id="date"
+                        value={date}
                         onChange={(e)=>setDate(e.target.value)}
                         className="
                         w-full
@@ -164,6 +192,7 @@ function IncomeForm({loadList}){
                         mb-2
                         font-medium">Category</label>
                 <select id="category"
+                        value={category}
                         className="
                         w-full
                         border

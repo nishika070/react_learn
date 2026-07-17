@@ -1,4 +1,4 @@
-function TransactionModal({transaction , onClose,}){
+function TransactionModal({transaction , onClose,onDelete ,onEdit}){
     return (
         <>
         <div 
@@ -6,13 +6,20 @@ function TransactionModal({transaction , onClose,}){
                     fixed
                     inset-0
                     bg-black/40
+                    backdrop-blur-sm
                     flex
+                    flex-col
                     items-center
                     justify-center
                     z-50
                     ">
-                <h2 className="text-xl font-bold mb-6">Transaction Details</h2>
-                <div className="space-y-3">
+                    <div className="bg-white
+                        w-[500px]
+                        rounded-xl
+                        shadow-2xl
+                        p-6">
+                    <h2 className="text-xl font-bold mb-6">Transaction Details</h2>
+                    <div className="space-y-3">
                     <p>
                         <span className="font-semibold">
                             Description:
@@ -41,18 +48,14 @@ function TransactionModal({transaction , onClose,}){
                         {transaction.date}
                     </p>
 
-                    <p>
-                        <span className="font-semibold">
-                            Type:
-                        </span>{" "}
-                        {transaction.type}
-                    </p>
+                    
 
                 </div>
 
                 <div className="flex justify-end gap-3 mt-8">
 
                     <button
+                        onClick={onEdit}
                         className="
                             px-4
                             py-2
@@ -65,6 +68,7 @@ function TransactionModal({transaction , onClose,}){
                     </button>
 
                     <button
+                        onClick={onDelete}
                         className="
                             px-4
                             py-2
@@ -88,6 +92,7 @@ function TransactionModal({transaction , onClose,}){
                         Close
                     </button>
 
+                </div>
                 </div>
 
         </div>

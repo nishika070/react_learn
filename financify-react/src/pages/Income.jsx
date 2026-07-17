@@ -1,6 +1,6 @@
 import {db} from "../firebase/firebase"
 import { useState } from "react"
-import { Await } from "react-router-dom"
+import { Await, data } from "react-router-dom"
 import { useEffect } from "react"
 import Navbar from "../components/Navbar"
 import StatCard from "../components/StatCard"
@@ -11,19 +11,24 @@ import Expense from "./Expense"
 import Pagination from "../components/Pagination"
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
+import TransactionModal from "../components/TransactionModal"
 import {
     collection,
     getDocs,
     query,
     where,
+    deleteDoc,
+    doc,
+    updateDoc,
 } from "firebase/firestore";
-import TransactionModal from "../components/TransactionModal"
 function Income(){
     const { user } = useContext(AuthContext);
     //load the data 
     const [incomes,setIncome]=useState([]);
     const [search,setSearch]=useState("");
     const [selectedIncome,setSelectedIncome]=useState(null);
+    const [editingIncome,setEditingIncome]=useState(null);
+
     // initally it is null
 
     
@@ -40,7 +45,8 @@ function Income(){
         }));
 
         setIncome(incomeArray);
-            }
+        }
+
 
     //define usestate
     useEffect(
@@ -76,6 +82,18 @@ function Income(){
     // u ave const per page
     // start end
     // .slice
+    const handleDelete=async()=>{
+        await deleteDoc(
+            doc(db,"incomes",selectedIncome.id)
+        );
+        await loadList();
+        setSelectedIncome(null);
+
+    }
+    const handleEdit=()=>{
+        setEditingIncome(selectedIncome)
+        setSelectedIncome(null);
+    }
    
     return (
         <>
@@ -120,7 +138,10 @@ function Income(){
             <div className="flex gap-6 ml-5 mt-8">
                 <div className="w-[40%]">
                     {/* income form comes here  */}
-                    <IncomeForm loadList={loadList}/>
+                    <IncomeForm loadList={loadList}
+                    editingIncome={editingIncome}
+                    setEditingIncome={setEditingIncome}
+                    />
                 </div>
                 {/* the income transaction side  */}
                 <div className="w-[60%]">
@@ -160,6 +181,8 @@ function Income(){
             <TransactionModal
                         transaction={selectedIncome}
                         onClose={()=>setSelectedIncome(null)}
+                        onDelete={handleDelete}
+                        onEdit={handleEdit}
 />        )}
         </>
         )
