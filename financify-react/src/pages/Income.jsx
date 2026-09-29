@@ -1,190 +1,223 @@
-import {db} from "../firebase/firebase"
-import { useState } from "react"
-import { Await, data } from "react-router-dom"
-import { useEffect } from "react"
-import Navbar from "../components/Navbar"
-import StatCard from "../components/StatCard"
-import IncomeForm from "../components/IncomeForm"
-import Searchbar from "../components/SearchBar"
-import IncomeList from "../components/IncomeList"
-import Expense from "./Expense"
-import Pagination from "../components/Pagination"
-import { useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
-import TransactionModal from "../components/TransactionModal"
+import { useEffect, useState, useContext } from "react";
 import {
-    collection,
-    getDocs,
-    query,
-    where,
-    deleteDoc,
-    doc,
-    updateDoc,
+    collection, getDocs, addDoc, query, where, deleteDoc, doc, updateDoc,
 } from "firebase/firestore";
-function Income(){
+import { db } from "../firebase/firebase";
+import { AuthContext } from "../context/AuthContext";
+import GlassCard from "../components/GlassCard";
+import TransactionModal from "../components/TransactionModal";
+
+const CATEGORIES = ["Salary", "Freelance", "Business", "Investment", "Gift", "Refund", "Other"];
+const today = () => new Date().toISOString().slice(0, 10);
+const fmt = (n) => `₹${Number(n || 0).toLocaleString("en-IN")}`;
+const emptyForm = () => ({ description: "", amount: "", date: today(), category: "" });
+const inputCls =
+    "h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-gray-800 outline-none placeholder:text-gray-400 focus:border-[#5079b5]";
+const labelCls = "mb-1 block text-sm text-gray-600";
+
+function Income() {
     const { user } = useContext(AuthContext);
-    //load the data 
-    const [incomes,setIncome]=useState([]);
-    const [search,setSearch]=useState("");
-    const [selectedIncome,setSelectedIncome]=useState(null);
-    const [editingIncome,setEditingIncome]=useState(null);
+    const [incomes, setIncomes] = useState([]);
+    const [search, setSearch] = useState("");
+    const [page, setPage] = useState(1);
+    const [saving, setSaving] = useState(false);
+    const [form, setForm] = useState(emptyForm());
+    const [selected, setSelected] = useState(null);
+    const [editing, setEditing] = useState(null);
 
-    // initally it is null
-
-    
-    const loadList=async()=>{const q = query(
-            collection(db, "incomes"),
-            where("uid", "==", user.uid)
+    const loadList = async () => {
+        if (!user) return;
+        const snap = await getDocs(
+            query(collection(db, "incomes"), where("uid", "==", user.uid))
         );
+        setIncomes(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    };
 
-        const snapshot = await getDocs(q);
-
-        const incomeArray = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }));
-
-        setIncome(incomeArray);
+    useEffect(() => { loadList(); }, [user]);
+    useEffect(() => { setPage(1); }, [search]);
+    useEffect(() => {
+        if (editing) {
+            setForm({
+                description: editing.description || "",
+                amount: editing.amount ?? "",
+                date: editing.date || today(),
+                category: editing.category || "",
+            });
         }
+    }, [editing]);
 
+    const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+    const canSubmit = form.description.trim() && Number(form.amount) > 0 && form.category;
 
-    //define usestate
-    useEffect(
-        ()=>{
-            loadList();
-        },[]
-    )
-    
-    //cards banao
-    const totalIncome =incomes.reduce((total,income)=>{
-        return total+income.amount;
-    },0);
-    const totalTransactions= incomes.length;
-    const totalCategories =new Set(
-        incomes.map(income=>income.category)
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!canSubmit || saving) return;
+        setSaving(true);
+        const data = {
+            description: form.description.trim(),
+            amount: Number(form.amount),
+            date: form.date,
+            category: form.category,
+        };
+        try {
+            if (editing) {
+                await updateDoc(doc(db, "incomes", editing.id), data);
+                setEditing(null);
+            } else {
+                await addDoc(collection(db, "incomes"), { ...data, uid: user.uid });
+            }
+            setForm(emptyForm());
+            await loadList();
+        } finally {
+            setSaving(false);
+        }
+    };
 
-    ).size;
-    const filteredIncome=incomes.filter((income)=>income.description.toLowerCase().includes(search.toLowerCase()));
-//================================
-    // pagination logic
-// ===============================
-    // so what is the pagination logic
-    const sortedIncome=[...filteredIncome].sort((a,b)=>{
-        return new Date(b.date)-new Date(a.date);
-    })
-    const [currentPage,setCurrentPage]=useState(1)
-    const recordsPerPage=5
-    const startIndex=(currentPage-1)*recordsPerPage 
-    const endIndex=(startIndex + recordsPerPage);
-    let visibleIncome=sortedIncome.slice(startIndex,endIndex);
-    const totalPages=Math.ceil(sortedIncome.length/recordsPerPage);
-
-    // u ave const per page
-    // start end
-    // .slice
-    const handleDelete=async()=>{
-        await deleteDoc(
-            doc(db,"incomes",selectedIncome.id)
-        );
+    const cancelEdit = () => { setEditing(null); setForm(emptyForm()); };
+    const handleDelete = async () => {
+        await deleteDoc(doc(db, "incomes", selected.id));
         await loadList();
-        setSelectedIncome(null);
+        setSelected(null);
+    };
+    const handleEdit = () => { setEditing(selected); setSelected(null); };
 
-    }
-    const handleEdit=()=>{
-        setEditingIncome(selectedIncome)
-        setSelectedIncome(null);
-    }
-   
+    const total = incomes.reduce((t, i) => t + Number(i.amount || 0), 0);
+    const categories = new Set(incomes.map((i) => i.category)).size;
+
+    const sorted = incomes
+        .filter((i) => (i.description || "").toLowerCase().includes(search.toLowerCase()))
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+    const perPage = 5;
+    const totalPages = Math.max(1, Math.ceil(sorted.length / perPage));
+    const visible = sorted.slice((page - 1) * perPage, page * perPage);
+
+    const stats = [
+        ["Total income", fmt(total), "text-green-700"],
+        ["Transactions", incomes.length, "text-gray-900"],
+        ["Categories", categories, "text-gray-900"],
+    ];
+
     return (
         <>
-        {/* bnaoooo yha pr cards call kro  */}
-        <div className="max-w-7xl mx-auto px-3 py-4">
-            <div className="mb-4">
-                {/* title */}
-                <h1 
-                    className="
-                            font-semibold
-                            text-[20px]
-                            text-var[--color-headin)]
-                            ">
-                    Income Page
-                </h1>
-                <p
-                    className="
-                            mt-2
-                            text-gray-500">
-                    Manage and monitor your daily incomes.
-                </p>
-            </div>
-            {/* ================================== */}
-            {/* ===========Cards=================== */}
-            {/* =================================== */}
-            
-            <div className="grid grid-cols-3 mb-8 px-5 gap-3">
-                {/* stat cards  */}
-                <StatCard
-                    title="Total Income"
-                    value={`+ ${totalIncome.toLocaleString("en-IN")}`}
-                            valueColor="text-green-700"/>
-                <StatCard
-                    title="Transactions"
-                    value={`${totalTransactions}`}/>                
-                <StatCard
-                    title="Categories"
-                    value={`${totalCategories}`}/>
-            </div>
-            {/*-------------TWO COL LAYOUT  -------------*/}
+            <div className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+                <header>
+                    <h1 className="text-2xl font-semibold text-gray-900">Income</h1>
+                    <p className="mt-1 text-sm text-gray-500">Manage and monitor your daily income.</p>
+                </header>
 
-            <div className="flex gap-6 ml-5 mt-8">
-                <div className="w-[40%]">
-                    {/* income form comes here  */}
-                    <IncomeForm loadList={loadList}
-                    editingIncome={editingIncome}
-                    setEditingIncome={setEditingIncome}
-                    />
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    {stats.map(([label, value, color]) => (
+                        <div key={label}
+                            className="rounded-2xl border border-white/70 bg-white/60 p-4 shadow-[0_8px_32px_rgba(80,121,181,0.12)] backdrop-blur-xl">
+                            <p className="text-sm text-gray-500">{label}</p>
+                            <p className={`mt-1 text-2xl font-semibold ${color}`}>{value}</p>
+                        </div>
+                    ))}
                 </div>
-                {/* the income transaction side  */}
-                <div className="w-[60%]">
-                    <div className="flex
-                                    justify-between">
 
-                        {/* heading + search btn  */}
-                        <h2 className="
-                            text-xl
-                            font-semibold
-                            m-4
-                            mb-1
-                            pt-7
-                            ml-5
-                            text-[var(--color-superheading)]">
-                            Income Record
-                        </h2>
-                        <Searchbar
-                            search={search}
-                            setSearch={setSearch}/>
+                <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-5 lg:gap-6">
+                    <GlassCard title={editing ? "Edit income" : "Add income"} className="lg:col-span-2">
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <div>
+                                <label className={labelCls}>Description</label>
+                                <input className={inputCls} placeholder="e.g. Salary" value={form.description}
+                                    onChange={(e) => set("description", e.target.value)} />
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className={labelCls}>Amount</label>
+                                    <input type="number" min="0" className={inputCls} placeholder="1000"
+                                        value={form.amount} onChange={(e) => set("amount", e.target.value)} />
+                                </div>
+                                <div>
+                                    <label className={labelCls}>Date</label>
+                                    <input type="date" className={inputCls} value={form.date}
+                                        onChange={(e) => set("date", e.target.value)} />
+                                </div>
+                            </div>
+                            <div>
+                                <label className={labelCls}>Category</label>
+                                <select className={inputCls} value={form.category}
+                                    onChange={(e) => set("category", e.target.value)}>
+                                    <option value="">Select category</option>
+                                    {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                                </select>
+                            </div>
+                            <div className="flex gap-2">
+                                {editing && (
+                                    <button type="button" onClick={cancelEdit}
+                                        className="h-10 rounded-lg border border-slate-200 bg-white px-4 text-sm text-gray-600 hover:bg-slate-50">
+                                        Cancel
+                                    </button>
+                                )}
+                                <button type="submit" disabled={!canSubmit || saving}
+                                    className="h-10 flex-1 rounded-lg bg-[#5079b5] text-sm font-medium text-white hover:bg-[#446aa3] disabled:cursor-not-allowed disabled:opacity-50">
+                                    {saving ? "Saving..." : editing ? "Save changes" : "Add income"}
+                                </button>
+                            </div>
+                        </form>
+                    </GlassCard>
 
-                    </div>
-                   <IncomeList
-                             incomes={visibleIncome}
-                             setSelectedIncome={setSelectedIncome}
-                    />
-                    <Pagination
-                            currentPage={currentPage}
-                            totalPages={totalPages}
-                            setCurrentPage={setCurrentPage}
-                    />
+                    <GlassCard
+                        title="Income records"
+                        className="lg:col-span-3"
+                        action={
+                            <input className={`${inputCls} sm:!w-56`} placeholder="Search" value={search}
+                                onChange={(e) => setSearch(e.target.value)} />
+                        }
+                    >
+                        {visible.length === 0 ? (
+                            <p className="py-12 text-center text-sm text-gray-500">
+                                {search ? "No income matches your search." : "No income added yet."}
+                            </p>
+                        ) : (
+                            <ul className="divide-y divide-slate-200/70">
+                                {visible.map((i) => (
+                                    <li key={i.id}>
+                                        <button onClick={() => setSelected(i)}
+                                            className="flex w-full items-center justify-between gap-4 rounded-lg px-2 py-3 text-left hover:bg-white/70">
+                                            <div className="min-w-0">
+                                                <p className="truncate text-sm font-medium text-gray-900">{i.description}</p>
+                                                <p className="text-xs text-gray-500">
+                                                    {i.category} · {new Date(i.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                                                </p>
+                                            </div>
+                                            <p className="shrink-0 text-sm font-semibold text-green-700">+ {fmt(i.amount)}</p>
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+
+                        {sorted.length > perPage && (
+                            <div className="mt-4 flex items-center justify-between text-sm text-gray-500">
+                                <span>Page {page} of {totalPages}</span>
+                                <div className="flex gap-2">
+                                    <button disabled={page === 1} onClick={() => setPage(page - 1)}
+                                        className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-gray-700 hover:bg-slate-50 disabled:opacity-40">
+                                        Previous
+                                    </button>
+                                    <button disabled={page === totalPages} onClick={() => setPage(page + 1)}
+                                        className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-gray-700 hover:bg-slate-50 disabled:opacity-40">
+                                        Next
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </GlassCard>
                 </div>
-                
             </div>
-        </div>
-        {selectedIncome && (
-            <TransactionModal
-                        transaction={selectedIncome}
-                        onClose={()=>setSelectedIncome(null)}
-                        onDelete={handleDelete}
-                        onEdit={handleEdit}
-/>        )}
+
+            {selected && (
+                <TransactionModal
+                    transaction={selected}
+                    onClose={() => setSelected(null)}
+                    onDelete={handleDelete}
+                    onEdit={handleEdit}
+                />
+            )}
         </>
-        )
+    );
 }
-export default Income
+
+export default Income;
