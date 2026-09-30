@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useCallback } from "react";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 import { seedOnce } from "../seedOnce";
@@ -8,6 +8,7 @@ import TransactionList from "../components/TransactionList";
 import Pagination from "../components/Pagination";
 import IncomeExpenseChart from "../components/IncomeExpenseChart";
 import ExpenseCategoryChart from "../components/ExpenseCategoryChart";
+import ChatBot from "../components/ChatBot";
 import { Icon } from "../components/Navbar";
 import { AuthContext } from "../context/AuthContext";
 
@@ -55,34 +56,45 @@ function Dashboard() {
     const [search, setSearch] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [expenses, setExpenses] = useState([]);
+    const [seeding, setSeeding] = useState(false);
     const { user } = useContext(AuthContext);
 
-    useEffect(() => {
+    const loadList = useCallback(async () => {
         if (!user) return;
 
-        async function loadList() {
-            const [expenseSnapshot, incomeSnapshot] = await Promise.all([
-                getDocs(query(collection(db, "expenses"), where("uid", "==", user.uid))),
-                getDocs(query(collection(db, "incomes"), where("uid", "==", user.uid))),
-            ]);
+        const [expenseSnapshot, incomeSnapshot] = await Promise.all([
+            getDocs(query(collection(db, "expenses"), where("uid", "==", user.uid))),
+            getDocs(query(collection(db, "incomes"), where("uid", "==", user.uid))),
+        ]);
 
-            const expenseArray = expenseSnapshot.docs.map((doc) => ({
-                id: doc.id,
-                type: "expense",
-                ...doc.data(),
-            }));
-            const incomeArray = incomeSnapshot.docs.map((doc) => ({
-                id: doc.id,
-                type: "income",
-                ...doc.data(),
-            }));
+        const expenseArray = expenseSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            type: "expense",
+            ...doc.data(),
+        }));
+        const incomeArray = incomeSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            type: "income",
+            ...doc.data(),
+        }));
 
-            setExpenses(expenseArray);
-            setTransactions([...expenseArray, ...incomeArray]);
-        }
-
-        loadList();
+        setExpenses(expenseArray);
+        setTransactions([...expenseArray, ...incomeArray]);
     }, [user]);
+
+    useEffect(() => {
+        loadList();
+    }, [loadList]);
+
+    async function handleSeed() {
+        setSeeding(true);
+        try {
+            await seedOnce(user.uid);
+            await loadList();
+        } finally {
+            setSeeding(false);
+        }
+    }
 
     // ============================ Cards ============================
 
@@ -94,7 +106,9 @@ function Dashboard() {
         (total, t) => (t.type === "expense" ? total + Number(t.amount || 0) : total),
         0
     );
-    const totalCategories = new Set(transactions.map((t) => t.category)).size;
+    const totalCategories = new Set(
+        transactions.map((t) => t.category).filter(Boolean)
+    ).size;
     const savingRate =
         totalIncome === 0
             ? 0
@@ -133,34 +147,36 @@ function Dashboard() {
     return (
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6">
             {/* Header */}
-            <header className="flex flex-wrap items-end justify-between gap-2">
+            <header className="flex flex-wrap items-end justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-semibold text-gray-900">
-                        {greeting()}
-                        {name && `, ${name}`}
+                    <h1 className="text-2xl sm:text-3xl tracking-tight text-gray-800">
+                        <span className="font-normal">{greeting()}</span>
+                        {name && (
+                            <span className="font-semibold text-[#5079b5]">
+                                , {name}
+                            </span>
+                        )}
                     </h1>
                     <p className="mt-1 text-sm text-gray-500">
-                        Here's your financial overview.
+                        {todayLabel}. Here's your financial overview.
                     </p>
                 </div>
-                <p className="text-sm text-gray-500">{todayLabel}</p>
+
                 <button
-    onClick={async () => {
-        await seedOnce(user.uid);
-        window.location.reload();
-    }}
-    className="rounded-lg bg-[#5079b5] px-4 py-2 text-sm text-white"
->
-    Add demo data (one time)
-</button>
+                    onClick={handleSeed}
+                    disabled={seeding}
+                    className="rounded-md bg-[#5079b5] px-2.5 py-1 text-[11px] text-white transition hover:bg-[#3f649a] disabled:opacity-60"
+                >
+                    {seeding ? "Adding..." : "Demo Data"}
+                </button>
             </header>
 
             {/* Stat cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 items-stretch">
                 <StatCard
                     title="Total Income"
                     value={`₹${totalIncome.toLocaleString("en-IN")}`}
-                    valueColor="text-green-700"
+                    valueColor="text-green-600"
                     icon={<Icon name="income" />}
                     iconClass="bg-green-100 text-green-700"
                 />
@@ -185,35 +201,31 @@ function Dashboard() {
             </div>
 
             {/* Charts: 3/5 + 2/5 */}
-            {/* Charts */}
-<div className="grid grid-cols-1 lg:grid-cols-5 gap-4 lg:gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 lg:gap-6">
+                <GlassCard
+                    title="Income vs Expense"
+                    subtitle="Weekly income compared to expenses"
+                    className="lg:col-span-3"
+                >
+                    <div className="h-64">
+                        <IncomeExpenseChart
+                            incomes={transactions.filter((t) => t.type === "income")}
+                            expenses={expenses}
+                        />
+                    </div>
+                </GlassCard>
 
-  <GlassCard
-    title="Income vs Expense"
-    subtitle="Weekly income compared to expenses"
-    className="lg:col-span-3"
-  >
-    <div className="h-64">
-      <IncomeExpenseChart
-        incomes={transactions.filter(
-          (transaction) => transaction.type === "income"
-        )}
-        expenses={expenses}
-      />
-    </div>
-  </GlassCard>
+                <GlassCard
+                    title="Expense Categories"
+                    subtitle="Where your money goes"
+                    className="lg:col-span-2"
+                >
+                    <div className="h-64">
+                        <ExpenseCategoryChart expenses={expenses} />
+                    </div>
+                </GlassCard>
+            </div>
 
-  <GlassCard
-    title="Expense Categories"
-    subtitle="Where your money goes"
-    className="lg:col-span-2"
-  >
-    <div className="h-64">
-      <ExpenseCategoryChart expenses={expenses} />
-    </div>
-  </GlassCard>
-
-</div>
             {/* Transactions */}
             <GlassCard
                 title="Recent Transactions"
@@ -247,6 +259,9 @@ function Dashboard() {
                     </>
                 )}
             </GlassCard>
+
+            {/* Floating assistant */}
+            <ChatBot transactions={transactions} />
         </div>
     );
 }
